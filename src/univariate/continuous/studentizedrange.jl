@@ -1,14 +1,11 @@
 using SpecialFunctions: gamma, erf
 using ForwardDiff: derivative
-using Distributions: norm
-using Plots
 using QuadGK: quadgk
 
 struct StudentizedRange{T<:Integer}
     k::T
     ν::T
     coeff::Float64
-
 end
 
 function StudentizedRange(k, ν)
@@ -79,7 +76,6 @@ function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
         else
             throw(BoundsError("Algorithm failed to converge. Sorry :("))
         end
-        # print("Eval num: $numeval, error = $error")
 
     end
     return b
