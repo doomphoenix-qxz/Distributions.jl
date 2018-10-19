@@ -52,3 +52,42 @@ function pdf(d::StudentizedRange, q)
     integral = quadgk(outer, 0.0, Inf)[1]
     return integral * d.coeff
 end
+
+function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
+    if brackets[1] > brackets[2]
+        xmax, xmin = brackets
+    else
+        xmin, xmax = brackets
+    end
+    @assert f(xmin) * f(xmax) < 0
+
+    a = xmin
+    b = xmax
+    error = 1
+    numeval = 0
+    while error > abstol
+
+        numeval += 1
+        if numeval > maxeval break end
+
+        fnew = f((a+b)/2)
+        error = abs(fnew)
+        if fnew * f(a) < 0
+            b = (a+b)/2
+        elseif fnew * f(b) < 0
+            a = (a+b)/2
+        else
+            throw(BoundsError("Algorithm failed to converge. Sorry :("))
+        end
+        # print("Eval num: $numeval, error = $error")
+
+    end
+    return b
+end
+
+function quantile(d::StudentizedRange, x)
+    @assert 0.0 <= x < 1.0
+    if x == 0.0 return 0 end
+
+    return simple_bisection(y -> cdf(d, y) - x, [0.0, 1000.0])
+end
