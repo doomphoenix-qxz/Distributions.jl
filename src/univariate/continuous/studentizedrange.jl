@@ -112,3 +112,5 @@ function quantile(d::StudentizedRange, x)
 
     return simple_bisection(y -> cdf(d, y) - x, [0.0, 1000.0])
 end
+
+dof(d::StudentizedRange) = d.ν
