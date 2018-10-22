@@ -25,16 +25,18 @@ External links
 * [Studentized range distribution on Wikipedia](https://en.wikipedia.org/wiki/Studentized_range_distribution)
 
 """
-struct StudentizedRange{T<:Integer}
+struct StudentizedRange{T<:Real}
     k::T
     ν::T
-    coeff::Float64
+    coeff_pdf::T
+    coeff_cdf::T
 end
 
 function StudentizedRange(k, ν)
-    (k, ν) = (Int64(k), Int64(ν))
-    coeff = (√(2π) * k * (k-1) * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
-    return StudentizedRange(k, ν, coeff)
+    (k, ν) = (Float64(k), Float64(ν))
+    coeff_pdf = (√(2π) * k * (k-1) * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
+    coeff_cdf = (k * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
+    return StudentizedRange(k, ν, coeff_pdf, coeff_cdf)
 end
 
 function 𝚽(x)
@@ -56,7 +58,7 @@ function cdf(d::StudentizedRange, q)
         return inner_part * x^(d.ν-1) * exp(-x^2*d.ν / 2)
     end
     integral = quadgk(outer, 0.0, Inf)[1]
-    return integral * (d.k * d.ν^(d.ν/2)) / (gamma(d.ν/2) * 2^(d.ν/2 - 1))
+    return integral * d.coeff_cdf
 end
 
 function pdf(d::StudentizedRange, q)
@@ -70,7 +72,7 @@ function pdf(d::StudentizedRange, q)
         return inner_part * x^d.ν * ϕ(x*√(d.ν))
     end
     integral = quadgk(outer, 0.0, Inf)[1]
-    return integral * d.coeff
+    return integral * d.coeff_pdf
 end
 
 function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
