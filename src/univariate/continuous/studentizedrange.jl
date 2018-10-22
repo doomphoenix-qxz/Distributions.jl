@@ -1,7 +1,30 @@
 using SpecialFunctions: gamma, erf
 using ForwardDiff: derivative
 using QuadGK: quadgk
+"""
+    StudentizedRange(k,ν)
 
+The *Studentized range distribution* has probability density function
+
+```math
+f(q; k, \\nu) = \\frac{\\sqrt{2\\pi}k(k-1)\\nu^{\\nu/2}}{\\Gamma(\nu/2)2^{\\nu/2 - 1}}
+\\int_{0}^{\\infty}\\varphi(\\sqrt{\\nu}x)\\Big[\\int_{-\\infty}^{\\infty}\\varphi(u)
+\\varphi(u-qx)(\\Phi(u)\\Phi(u-qx)^{k-2})du\\Big]dx, \\quad x > 0, \\quad k > 1
+```
+
+
+```julia
+StudentizedRange(n, ν)    # Studentized range distribution with number of samples n and degrees of freedom ν
+
+params(d)          # Get the parameters, i.e. (k, ν)
+dof(d)             # Get the degrees of freedom, i.e. ν
+```
+
+External links
+
+* [Studentized range distribution on Wikipedia](https://en.wikipedia.org/wiki/Studentized_range_distribution)
+
+"""
 struct StudentizedRange{T<:Integer}
     k::T
     ν::T
