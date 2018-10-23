@@ -39,6 +39,9 @@ function StudentizedRange(k, ν)
     return StudentizedRange(k, ν, coeff_pdf, coeff_cdf)
 end
 
+StudentizedRange(k::T, ν::T) where {T<:Real} = StudentizedRange{T}(k, ν)
+StudentizedRange(k::Real, ν::Real) = StudentizedRange(promote(k, ν)...)
+StudentizedRange(k::Integer, ν::Integer) = StudentizedRange(Float64(k), Float64(ν))
 StudentizedRange(a) = StudentizedRange(a,a)
 StudentizedRange() = StudentizedRange(2,2)
 
