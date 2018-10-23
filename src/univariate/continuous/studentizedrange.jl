@@ -45,6 +45,8 @@ StudentizedRange(k::Integer, ν::Integer) = StudentizedRange(Float64(k), Float64
 StudentizedRange(a) = StudentizedRange(a,a)
 StudentizedRange() = StudentizedRange(2,2)
 
+@distr_support StudentizedRange 0.0 Inf
+
 ### Conversions
 function convert(::Type{StudentizedRange{T}}, k::Real, ν::Real) where T<:Real
     StudentizedRange(T(k), T(ν))
@@ -52,6 +54,21 @@ end
 function convert(::Type{StudentizedRange{T}}, d::StudentizedRange{S}) where {T <: Real, S <: Real}
     StudentizedRange(T(d.k), T(d.ν))
 end
+
+### Parameters
+
+params(d::StudentizedRange) = (d.k, d.ν)
+dof(d::StudentizedRange) = d.ν
+
+### Statistics
+
+mean(d::StudentizedRange{T}) = T(NaN)
+mode(d::StudentizedRange{T}) = T(NaN)
+var(d::StudentizedRange{T}) = T(NaN)
+skewness(d::StudentizedRange{T}) = T(NaN)
+entropy(d::StudentizedRange{T}) = T(NaN)
+
+### Evaluation
 
 function 𝚽(x)
     return (1+erf(x / √2)) / 2
@@ -89,6 +106,8 @@ function pdf(d::StudentizedRange, q)
     return integral * d.coeff_pdf
 end
 
+logpdf(d::StudentizedRange) = log(pdf(d))
+
 function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
     if brackets[1] > brackets[2]
         xmax, xmin = brackets
@@ -122,9 +141,9 @@ end
 
 function quantile(d::StudentizedRange, x)
     @assert 0.0 <= x < 1.0
-    if x == 0.0 return 0 end
+    if x == 0.0 return 0.0 end
 
     return simple_bisection(y -> cdf(d, y) - x, [0.0, 1000.0])
 end
 
-dof(d::StudentizedRange) = d.ν
+median(d::StudentizedRange) = quantile(d, 0.5)
