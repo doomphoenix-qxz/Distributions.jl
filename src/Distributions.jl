@@ -129,6 +129,7 @@ export
     Rayleigh,
     Semicircle,
     Skellam,
+    StudentizedRange,
     SymTriangularDist,
     TDist,
     TriangularDist,

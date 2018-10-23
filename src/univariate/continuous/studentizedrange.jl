@@ -25,7 +25,7 @@ External links
 * [Studentized range distribution on Wikipedia](https://en.wikipedia.org/wiki/Studentized_range_distribution)
 
 """
-struct StudentizedRange{T<:Real}
+struct StudentizedRange{T<:Real} <: ContinuousUnivariateDistribution
     k::T
     ν::T
     coeff_pdf::T
@@ -37,6 +37,17 @@ function StudentizedRange(k, ν)
     coeff_pdf = (√(2π) * k * (k-1) * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
     coeff_cdf = (k * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
     return StudentizedRange(k, ν, coeff_pdf, coeff_cdf)
+end
+
+StudentizedRange(a) = StudentizedRange(a,a)
+StudentizedRange() = StudentizedRange(2,2)
+
+### Conversions
+function convert(::Type{StudentizedRange{T}}, k::Real, ν::Real) where T<:Real
+    StudentizedRange(T(k), T(ν))
+end
+function convert(::Type{StudentizedRange{T}}, d::StudentizedRange{S}) where {T <: Real, S <: Real}
+    StudentizedRange(T(d.k), T(d.ν))
 end
 
 function 𝚽(x)
