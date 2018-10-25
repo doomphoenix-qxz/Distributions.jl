@@ -32,7 +32,7 @@ struct StudentizedRange{T<:Real} <: ContinuousUnivariateDistribution
     coeff_cdf::T
 end
 
-function StudentizedRange(k, ν)
+function StudentizedRange{T}(k, ν) where T
     (k, ν) = (Float64(k), Float64(ν))
     coeff_pdf = (√(2π) * k * (k-1) * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
     coeff_cdf = (k * ν^(ν/2)) / (gamma(ν/2) * 2^(ν/2 - 1))
@@ -70,6 +70,7 @@ entropy(d::StudentizedRange{T}) = T(NaN)
 
 ### Evaluation
 
+# Helper functions for cdf and pdf of standard normal.
 function 𝚽(x)
     return (1+erf(x / √2)) / 2
 end
@@ -106,8 +107,11 @@ function pdf(d::StudentizedRange, q)
     return integral * d.coeff_pdf
 end
 
-logpdf(d::StudentizedRange) = log(pdf(d))
+logpdf(d::StudentizedRange, q) = log(pdf(d, q))
 
+# To get quantile to work correctly I had to implement my quick naive version of
+# the bisection method. I'm not sure why, but trying to do this with Roots.jl
+# was WAY too slow. Like 30+ seconds.
 function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
     if brackets[1] > brackets[2]
         xmax, xmin = brackets
@@ -136,7 +140,7 @@ function simple_bisection(f::Function, brackets, abstol=10.0^-6, maxeval=1e3)
         end
 
     end
-    return b
+    return (a+b)/2
 end
 
 function quantile(d::StudentizedRange, x)
